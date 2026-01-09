@@ -37,12 +37,25 @@ function loadTodos() {
 }
 
 // 3. 체크 토글 (정렬 및 배경색 변경 포함)
-function toggleCheck(index) {
+function toggleCheck(id) { // 매개변수 이름을 id로 변경
     const todos = getTodos();
-    todos[index].checked = !todos[index].checked;
+    
+    // 배열에서 해당 id를 가진 항목을 찾습니다.
+    const targetItem = todos.find(item => item.id === id);
+    
+    // 항목을 못 찾을 경우를 대비한 방어 코드
+    if (!targetItem) {
+        console.error("항목을 찾을 수 없습니다. ID:", id);
+        return;
+    }
 
-    // 라이트모드에서 체크 시 배경색 변경
-    if (todos[index].checked && document.documentElement.getAttribute('data-theme') !== 'dark') {
+    console.log('Target item found:', targetItem);
+    
+    // 찾은 항목의 체크 상태 반전
+    targetItem.checked = !targetItem.checked;
+
+    // 라이트모드에서 체크 시 배경색 변경 (기존 로직 유지)
+    if (targetItem.checked && document.documentElement.getAttribute('data-theme') !== 'dark') {
         const r = Math.floor(Math.random() * 56) + 200;
         const g = Math.floor(Math.random() * 56) + 200;
         const b = Math.floor(Math.random() * 56) + 200;
@@ -50,6 +63,7 @@ function toggleCheck(index) {
         document.body.style.backgroundColor = newColor;
         localStorage.setItem('bgColor', newColor);
     }
+    
     saveAndRefresh(todos);
 }
 
