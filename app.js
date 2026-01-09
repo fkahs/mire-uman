@@ -214,3 +214,49 @@ function getTodos() {
 }
 
 // ... 테마 관련 함수(toggleTheme, applySavedTheme 등)는 이전과 동일
+
+// 화면을 그릴 때마다 모든 완료 여부를 체크합니다.
+function loadTodos() {
+    const list = document.getElementById('todoList');
+    const todos = getTodos();
+    list.innerHTML = "";
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedItems = todos.slice(startIndex, endIndex);
+
+    paginatedItems.forEach((item) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleCheck(${item.id})">
+            <span class="todo-text ${item.checked ? 'completed' : ''}">${item.text}</span>
+            <button class="delete-btn" onclick="deleteTodo(${item.id})">삭제</button>
+        `;
+        list.appendChild(li);
+    });
+
+    renderPaginationDynamic(todos.length);
+    
+    // ★ 추가: 모든 할 일이 완료되었는지 확인
+    checkAllTasksDone(todos);
+}
+
+// 모든 할 일 완료 여부를 확인하고 메시지를 표시하는 함수
+function checkAllTasksDone(todos) {
+    // 기존에 떠 있는 메시지가 있다면 제거
+    const existingMsg = document.querySelector('.all-done-message');
+    if (existingMsg) existingMsg.remove();
+
+    // 1. 할 일이 존재하고 2. 모든 할 일의 checked가 true인 경우
+    const isAllDone = todos.length > 0 && todos.every(todo => todo.checked);
+
+    if (isAllDone) {
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'all-done-message';
+        msgDiv.innerHTML = "🎉 모든 할 일을 완료했습니다! 🎉";
+        
+        // 체크리스트 제목(h2) 바로 아래에 메시지 삽입
+        const title = document.querySelector('.title');
+        title.after(msgDiv);
+    }
+}

@@ -184,3 +184,34 @@ li:has(input:checked) .delete-btn { display: none; }
     color: white;
     border-color: var(--btn-color);
 }
+/* 모든 완료 메시지 스타일 */
+.all-done-message {
+    background-color: #4caf50; /* 성공을 의미하는 초록색 */
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 20px;
+    font-weight: bold;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    
+    /* 나타날 때 부드러운 애니메이션 */
+    animation: slideDown 0.4s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* 다크모드 대응 */
+[data-theme="dark"] .all-done-message {
+    background-color: #2e7d32;
+}
