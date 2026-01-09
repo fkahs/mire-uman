@@ -3,99 +3,64 @@ document.addEventListener('DOMContentLoaded', () => {
     applySavedBgColor();
     loadTodos();
 
+    // Enter 키 대응
     document.getElementById('todoInput').addEventListener('keyup', (e) => {
         if (e.key === 'Enter') addList();
     });
 });
 
-// 1. 할 일 추가
 function addList() {
     const input = document.getElementById('todoInput');
     if (!input.value.trim()) return;
 
     const todos = getTodos();
-    todos.push({ text: input.value, checked: false });
+    // 생성 시간을 id로 사용하여 순서 유지
+    todos.push({ 
+        id: Date.now(), 
+        text: input.value, 
+        checked: false 
+    });
     saveAndRefresh(todos);
     input.value = "";
 }
 
-// 2. 화면 그리기
 function loadTodos() {
     const list = document.getElementById('todoList');
     list.innerHTML = "";
-    getTodos().forEach((item, index) => {
+    getTodos().forEach((item) => {
         const li = document.createElement('li');
-        const escapedText = item.text.replace(/'/g, "\\'");
-        
         li.innerHTML = `
-            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleCheck(${index})">
+            <input type="checkbox" ${item.checked ? 'checked' : ''} onchange="toggleCheck(${item.id})">
             <span class="todo-text ${item.checked ? 'completed' : ''}">${item.text}</span>
-            <button class="delete-btn" onclick="deleteTodo(${index})">삭제</button>
+            <button class="delete-btn" onclick="deleteTodo(${item.id})">삭제</button>
         `;
         list.appendChild(li);
     });
 }
 
-// 3. 체크 토글 (정렬 및 배경색 변경 포함)
-function toggleCheck(id) { // 매개변수 이름을 id로 변경
+function toggleCheck(id) {
     const todos = getTodos();
-    
-    // 배열에서 해당 id를 가진 항목을 찾습니다.
-    const targetItem = todos.find(item => item.id === id);
-    
-    // 항목을 못 찾을 경우를 대비한 방어 코드
-    if (!targetItem) {
-        console.error("항목을 찾을 수 없습니다. ID:", id);
-        return;
+    const target = todos.find(t => t.id === id);
+    if (target) {
+        target.checked = !target.checked;
+        if (target.checked && document.documentElement.getAttribute('data-theme') !== 'dark') {
+            changeBackgroundColor();
+        }
+        saveAndRefresh(todos);
     }
+}
 
-    console.log('Target item found:', targetItem);
-    
-    // 찾은 항목의 체크 상태 반전
-    targetItem.checked = !targetItem.checked;
-
-    // 라이트모드에서 체크 시 배경색 변경 (기존 로직 유지)
-    if (targetItem.checked && document.documentElement.getAttribute('data-theme') !== 'dark') {
-        const r = Math.floor(Math.random() * 56) + 200;
-        const g = Math.floor(Math.random() * 56) + 200;
-        const b = Math.floor(Math.random() * 56) + 200;
-        const newColor = `rgb(${r}, ${g}, ${b})`;
-        document.body.style.backgroundColor = newColor;
-        localStorage.setItem('bgColor', newColor);
-    }
-    
+function deleteTodo(id) {
+    const todos = getTodos().filter(t => t.id !== id);
     saveAndRefresh(todos);
 }
-
-// 4. 삭제
-function deleteTodo(index) {
-    const todos = getTodos();
-    todos.splice(index, 1);
-    saveAndRefresh(todos);
-}
-
-// 5. 테마 전환 (이미지 변경 로직 포함)
-function toggleTheme() {
-    const html = document.documentElement;
-    const isDark = html.getAttribute('data-theme') === 'dark';
-    const newTheme = isDark ? 'light' : 'dark';
-    
-    html.setAttribute('data-theme', newTheme);
-    localStorage.setItem('theme', newTheme);
-    
-    if (newTheme === 'dark') {
-        document.body.style.backgroundColor = ""; // 다크모드는 배경색 고정
-    } else {
-        applySavedBgColor();
-    }
-    updateThemeImg(newTheme);
-}
-
-// --- 유틸리티 함수 ---
 
 function saveAndRefresh(todos) {
-    // 체크된 항목을 아래로 정렬
-    todos.sort((a, b) => a.checked - b.checked);
+    // 1. 체크 안된 것 위, 체크된 것 아래 / 2. 그 안에서는 생성 순서대로
+    todos.sort((a, b) => {
+        if (a.checked !== b.checked) return a.checked - b.checked;
+        return a.id - b.id;
+    });
     localStorage.setItem('todos', JSON.stringify(todos));
     loadTodos();
 }
@@ -104,10 +69,27 @@ function getTodos() {
     return JSON.parse(localStorage.getItem('todos')) || [];
 }
 
+// 테마 및 배경색 로직 (동일)
+function toggleTheme() {
+    const html = document.documentElement;
+    const newTheme = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    html.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
+    if (newTheme === 'dark') document.body.style.backgroundColor = "";
+    else applySavedBgColor();
+    updateThemeImg(newTheme);
+}
+
 function applySavedTheme() {
     const theme = localStorage.getItem('theme') || 'light';
     document.documentElement.setAttribute('data-theme', theme);
     updateThemeImg(theme);
+}
+
+function changeBackgroundColor() {
+    const color = `rgb(${Math.floor(Math.random()*56)+200}, ${Math.floor(Math.random()*56)+200}, ${Math.floor(Math.random()*56)+200})`;
+    document.body.style.backgroundColor = color;
+    localStorage.setItem('bgColor', color);
 }
 
 function applySavedBgColor() {
@@ -119,7 +101,6 @@ function applySavedBgColor() {
 
 function updateThemeImg(theme) {
     const img = document.getElementById('themeImg');
-    // 달 아이콘과 해 아이콘으로 교체 (Icons8 무료 API 사용 예시)
     img.src = theme === 'dark' 
         ? "https://img.icons8.com/ios-filled/50/000000/sun--v1.png" 
         : "https://img.icons8.com/ios-filled/50/000000/moon-symbol.png";
