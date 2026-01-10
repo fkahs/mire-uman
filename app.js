@@ -214,3 +214,30 @@ function updateThemeImg(theme) {
         ? "https://img.icons8.com/ios-filled/50/000000/sun--v1.png" 
         : "https://img.icons8.com/ios-filled/50/000000/moon-symbol.png";
 }
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. 잘못 배치된 요소들을 container 안으로 강제 이동
+    const container = document.querySelector('.container');
+    const todoList = document.getElementById('todoList');
+    const themeToggle = document.querySelector('.theme-toggle');
+
+    if (container) {
+        if (todoList) container.appendChild(todoList);
+        if (themeToggle) container.appendChild(themeToggle);
+    }
+
+    // 기존 초기화 로직들
+    applySavedTheme();
+    applySavedBgColor();
+    itemsPerPage = parseInt(localStorage.getItem('itemsPerPage')) || 10;
+    currentSort = localStorage.getItem('currentSort') || 'time';
+    
+    renderSettings(); 
+    loadTodos();
+
+    const todoInput = document.getElementById('todoInput');
+    if (todoInput) {
+        todoInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') addList();
+        });
+    }
+});
