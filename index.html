@@ -1,28 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko" data-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="style.css">
     <title>체크리스트</title>
 </head>
-<div class="container">
-<h2 class="title"><strong>체크리스트</strong></h2>
-
-<div class="input-group">
-        <input type="text" id="todoInput" placeholder="할 일을 입력하세요...">
-        <button onclick="addList()">
-            <img src="/+.png" alt="추가" width="40" height="30">
-        </button>
-</div>
-
-    <ul id="todoList"></ul>
-</div>
 <body>
-    <div class="theme-toggle" onclick="toggleTheme()">
-        <img id="themeImg" src="https://img.icons8.com/ios-filled/50/000000/moon-symbol.png" alt="테마버튼">
+    <div class="container">
+        <h2 class="title"><strong>체크리스트</strong></h2>
+
+        <div class="input-group">
+            <input type="text" id="todoInput" placeholder="할 일을 입력하세요...">
+            <button onclick="addList()">
+                <img src="+.png" alt="추가" width="20" height="20">
+            </button>
+        </div>
+
+        <ul id="todoList"></ul>
+
+        <div class="theme-toggle" onclick="toggleTheme()">
+            <img id="themeImg" src="https://img.icons8.com/ios-filled/50/000000/moon-symbol.png" alt="테마버튼" width="30">
+        </div>
     </div>
-    <ul id="todoList"></ul>
-    <script src="/app.js"></script>
+
+    <script src="app.js"></script>
 </body>
 </html>
